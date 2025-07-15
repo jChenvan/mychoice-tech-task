@@ -7,7 +7,7 @@ import NewItemDialog from './components/NewItemDialog';
 function App() {
   const [items, setItems] = useState<Item[]>([]);
   const newItemDialogRef = useRef<HTMLDialogElement>(null);
-  
+
   useEffect(()=>{
     (async ()=>{
       const res = await fetch('http://localhost:8000/items/');
@@ -58,7 +58,12 @@ function App() {
                 <button className='p-2 hover:opacity-50 cursor-pointer'>
                   <Icon path={mdiPen} size={1} color={"blue"}/>
                 </button>
-                <button className='p-2 hover:opacity-50 cursor-pointer'>
+                <button className='p-2 hover:opacity-50 cursor-pointer' onClick={()=>{
+                  setItems(prev=>prev.filter(i=>i.id !== item.id));
+                  fetch(`http://localhost:8000/items/${item.id}/`, {
+                    method: "DELETE"
+                  });
+                }}>
                   <Icon path={mdiClose} size={1} color={"blue"}/>
                 </button>
               </td>
