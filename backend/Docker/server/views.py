@@ -20,6 +20,11 @@ def all_items(request):
         try:
             body_unicode = request.body.decode('utf-8')
             body_data = json.loads(body_unicode)
+            if body_data["group"] not in ["PRIMARY", "SECONDARY"]:
+                return HttpResponse(json.dumps({"error": "Invalid group"}), content_type="application/json", status=400)
+            dupes = Item.objects.filter(group = body_data["group"], name = body_data["name"])
+            if dupes.count() > 0:
+                return HttpResponse(json.dumps({"error": "Item already exists"}), content_type="application/json", status=400)
             Item.objects.create(**body_data)
             return HttpResponse("success!", content_type="application/json")
         except json.JSONDecodeError:
