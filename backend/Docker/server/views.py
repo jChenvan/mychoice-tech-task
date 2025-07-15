@@ -25,8 +25,9 @@ def all_items(request):
             dupes = Item.objects.filter(group = body_data["group"], name = body_data["name"])
             if dupes.count() > 0:
                 return HttpResponse(json.dumps({"error": "Item already exists"}), content_type="application/json", status=400)
-            Item.objects.create(**body_data)
-            return HttpResponse("success!", content_type="application/json")
+            result = Item.objects.create(**body_data)
+            created_item = serializers.serialize("json", result)
+            return HttpResponse(created_item, content_type="application/json")
         except json.JSONDecodeError:
             return HttpResponse(json.dumps({"error": "Invalid JSON"}), content_type="application/json", status=400)
         except TypeError as e:
@@ -66,8 +67,9 @@ def item(request, itemid):
     if request.method == "DELETE":
         try:
             obj = Item.objects.get(id=itemid)
+            deleted_item = serializers.serialize("json", [obj])
             obj.delete()
-            return HttpResponse("success!")
+            return HttpResponse(deleted_item, content_type="application/json")
         except Item.DoesNotExist:
             return HttpResponse(json.dumps({"error": "Item not found"}), content_type="application/json", status=404)
         except Exception as e:
