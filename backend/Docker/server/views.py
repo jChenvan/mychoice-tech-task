@@ -3,6 +3,7 @@ from server.models import Item
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
 import json
+from datetime import datetime, timezone
 
 @csrf_exempt
 def all_items(request):
@@ -25,4 +26,29 @@ def all_items(request):
 
 @csrf_exempt
 def item(request, itemid):
-    return HttpResponse("Hello World!")
+    if request.method == "GET":
+        result = Item.objects.filter(id=itemid)
+        item = serializers.serialize("json", result)
+        return HttpResponse(item, content_type="application/json")
+    if request.method == "PATCH":
+        try:
+            body_unicode = request.body.decode('utf-8')
+            body_data = json.loads(body_unicode)
+            obj = Item.objects.get(id=itemid)
+            for key, value in body_data.items():
+                if key == "name" or key == "group":
+                    setattr(obj, key, value)
+            setattr(obj, "updated_at", datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z'))
+            obj.save()
+            updated_item = serializers.serialize("json", [obj])
+            return HttpResponse(updated_item, content_type="application/json")
+        except Item.DoesNotExist:
+            return HttpResponse(json.dumps({"error": "Item not found"}), content_type="application/json", status=404)
+        except json.JSONDecodeError:
+            return HttpResponse(json.dumps({"error": "Invalid JSON"}), content_type="application/json", status=400)
+        except Exception as e:
+            return HttpResponse(json.dumps({"error": "Server error", "details": str(e)}), content_type="application/json", status=500)
+    if request.method == "DELETE":
+        obj = Item.objects.get(id=itemid)
+        obj.delete()
+        return HttpResponse("success!")
