@@ -4,12 +4,14 @@ import { mdiClose, mdiEye, mdiPen, mdiPlus } from '@mdi/js'
 import type { Item } from './types';
 import NewItemDialog from './components/NewItemDialog';
 import EditItemDialog from './components/EditItemDialog';
+import ViewItemDialog from './components/ViewItemDialog';
 
 function App() {
   const [items, setItems] = useState<Item[]>([]);
   const [current, setCurrent] = useState<Item>();
   const newItemDialogRef = useRef<HTMLDialogElement>(null);
   const editItemDialogRef = useRef<HTMLDialogElement>(null);
+  const viewItemDialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(()=>{
     (async ()=>{
@@ -32,6 +34,7 @@ function App() {
     <>
       <NewItemDialog setItems={setItems} ref={newItemDialogRef}/>
       <EditItemDialog item={current} ref={editItemDialogRef} setItems={setItems}/>
+      <ViewItemDialog ref={viewItemDialogRef} item={current}/>
       <div className='w-screen h-screen flex justify-center items-center'>
         <table className='rounded-lg overflow-hidden shadow-md'>
           <thead className='bg-blue-700'>
@@ -56,7 +59,10 @@ function App() {
               <td className='pr-2'>{new Date(item["created_at"]).toLocaleString()}</td>
               <td className='pr-2'>{new Date(item["updated_at"]).toLocaleString()}</td>
               <td>
-                <button className='p-2 hover:opacity-50 cursor-pointer'>
+                <button className='p-2 hover:opacity-50 cursor-pointer' onClick={()=>{
+                  setCurrent(item);
+                  viewItemDialogRef.current?.showModal();
+                }}>
                   <Icon path={mdiEye} size={1} color={"blue"}/>
                 </button>
                 <button className='p-2 hover:opacity-50 cursor-pointer' onClick={()=>{
