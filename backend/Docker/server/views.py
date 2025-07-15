@@ -54,7 +54,7 @@ def item(request, itemid):
             for key, value in body_data.items():
                 if key == "name" or key == "group":
                     setattr(obj, key, value)
-            setattr(obj, "updated_at", datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z'))
+            setattr(obj, "updated_at", datetime.now(timezone.utc))
             obj.save()
             updated_item = serializers.serialize("json", [obj])
             return HttpResponse(updated_item, content_type="application/json")
