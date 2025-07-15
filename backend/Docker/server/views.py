@@ -50,6 +50,9 @@ def item(request, itemid):
         try:
             body_unicode = request.body.decode('utf-8')
             body_data = json.loads(body_unicode)
+            dupes = Item.objects.filter(name = body_data["name"], group = body_data["group"])
+            if len(dupes) > 0:
+                return HttpResponse(json.dumps({"error": "Item already exists"}), content_type="application/json", status=400)
             obj = Item.objects.get(id=itemid)
             for key, value in body_data.items():
                 if key == "name" or key == "group":
