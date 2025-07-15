@@ -3,10 +3,13 @@ import Icon from '@mdi/react'
 import { mdiClose, mdiEye, mdiPen, mdiPlus } from '@mdi/js'
 import type { Item } from './types';
 import NewItemDialog from './components/NewItemDialog';
+import EditItemDialog from './components/EditItemDialog';
 
 function App() {
   const [items, setItems] = useState<Item[]>([]);
+  const [current, setCurrent] = useState<Item>();
   const newItemDialogRef = useRef<HTMLDialogElement>(null);
+  const editItemDialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(()=>{
     (async ()=>{
@@ -28,6 +31,7 @@ function App() {
   return (
     <>
       <NewItemDialog setItems={setItems} ref={newItemDialogRef}/>
+      <EditItemDialog item={current} ref={editItemDialogRef} setItems={setItems}/>
       <div className='w-screen h-screen flex justify-center items-center'>
         <table className='rounded-lg overflow-hidden shadow-md'>
           <thead className='bg-blue-700'>
@@ -55,7 +59,10 @@ function App() {
                 <button className='p-2 hover:opacity-50 cursor-pointer'>
                   <Icon path={mdiEye} size={1} color={"blue"}/>
                 </button>
-                <button className='p-2 hover:opacity-50 cursor-pointer'>
+                <button className='p-2 hover:opacity-50 cursor-pointer' onClick={()=>{
+                  setCurrent(item);
+                  editItemDialogRef.current?.showModal();
+                }}>
                   <Icon path={mdiPen} size={1} color={"blue"}/>
                 </button>
                 <button className='p-2 hover:opacity-50 cursor-pointer' onClick={()=>{
