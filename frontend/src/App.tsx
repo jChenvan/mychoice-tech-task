@@ -1,18 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Icon from '@mdi/react'
 import { mdiClose, mdiEye, mdiPen, mdiPlus } from '@mdi/js'
-
-interface Item {
-  id: number,
-  name: string,
-  group: "PRIMARY" | "SECONDARY",
-  "created_at": string,
-  "updated_at": string,
-}
+import type { Item } from './types';
+import NewItemDialog from './components/NewItemDialog';
 
 function App() {
   const [items, setItems] = useState<Item[]>([]);
-
+  const newItemDialogRef = useRef<HTMLDialogElement>(null);
+  
   useEffect(()=>{
     (async ()=>{
       const res = await fetch('http://localhost:8000/items/');
@@ -32,8 +27,9 @@ function App() {
 
   return (
     <>
+      <NewItemDialog setItems={setItems} ref={newItemDialogRef}/>
       <div className='w-screen h-screen flex justify-center items-center'>
-        <table className='rounded-lg overflow-hidden'>
+        <table className='rounded-lg overflow-hidden shadow-md'>
           <thead className='bg-blue-700'>
             <tr>
               <th className='p-4 text-white'>id</th>
@@ -42,7 +38,9 @@ function App() {
               <th className='p-4 text-white'>created</th>
               <th className='p-4 text-white'>updated</th>
               <th>
-                <button className='m-4 cursor-pointer hover:opacity-80'><Icon path={mdiPlus} size={1} color={"white"}/></button>
+                <button className='m-4 cursor-pointer hover:opacity-80' onClick={()=>newItemDialogRef.current?.showModal()}>
+                  <Icon path={mdiPlus} size={1} color={"white"}/>
+                </button>
               </th>
             </tr>
           </thead>
