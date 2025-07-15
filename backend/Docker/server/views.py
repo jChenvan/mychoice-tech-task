@@ -8,9 +8,14 @@ from datetime import datetime, timezone
 @csrf_exempt
 def all_items(request):
     if request.method == "GET":
-        all_items = Item.objects.all()
-        data = serializers.serialize("json", all_items)
-        return HttpResponse(data, content_type="application/json")
+        try:
+            all_items = Item.objects.all()
+            data = serializers.serialize("json", all_items)
+            return HttpResponse(data, content_type="application/json")
+        except TypeError as e:
+            return HttpResponse(json.dumps({"error": str(e)}), content_type="application/json", status=400)
+        except Exception as e:
+            return HttpResponse(json.dumps({"error": "Server error", "details": str(e)}), content_type="application/json", status=500)
     if request.method == "POST":
         try:
             body_unicode = request.body.decode('utf-8')
@@ -27,9 +32,14 @@ def all_items(request):
 @csrf_exempt
 def item(request, itemid):
     if request.method == "GET":
-        result = Item.objects.filter(id=itemid)
-        item = serializers.serialize("json", result)
-        return HttpResponse(item, content_type="application/json")
+        try:
+            result = Item.objects.filter(id=itemid)
+            item = serializers.serialize("json", result)
+            return HttpResponse(item, content_type="application/json")
+        except Item.DoesNotExist:
+            return HttpResponse(json.dumps({"error": "Item not found"}), content_type="application/json", status=404)
+        except Exception as e:
+            return HttpResponse(json.dumps({"error": "Server error", "details": str(e)}), content_type="application/json", status=500)
     if request.method == "PATCH":
         try:
             body_unicode = request.body.decode('utf-8')
@@ -49,6 +59,11 @@ def item(request, itemid):
         except Exception as e:
             return HttpResponse(json.dumps({"error": "Server error", "details": str(e)}), content_type="application/json", status=500)
     if request.method == "DELETE":
-        obj = Item.objects.get(id=itemid)
-        obj.delete()
-        return HttpResponse("success!")
+        try:
+            obj = Item.objects.get(id=itemid)
+            obj.delete()
+            return HttpResponse("success!")
+        except Item.DoesNotExist:
+            return HttpResponse(json.dumps({"error": "Item not found"}), content_type="application/json", status=404)
+        except Exception as e:
+            return HttpResponse(json.dumps({"error": "Server error", "details": str(e)}), content_type="application/json", status=500)
