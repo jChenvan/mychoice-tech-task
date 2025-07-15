@@ -26,7 +26,7 @@ def all_items(request):
             if dupes.count() > 0:
                 return HttpResponse(json.dumps({"error": "Item already exists"}), content_type="application/json", status=400)
             result = Item.objects.create(**body_data)
-            created_item = serializers.serialize("json", result)
+            created_item = serializers.serialize("json", [result])
             return HttpResponse(created_item, content_type="application/json")
         except json.JSONDecodeError:
             return HttpResponse(json.dumps({"error": "Invalid JSON"}), content_type="application/json", status=400)
