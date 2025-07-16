@@ -11,7 +11,7 @@ def all_items(request):
         try:
             all_items = Item.objects.all()
             data = serializers.serialize("json", all_items)
-            return HttpResponse(data, content_type="application/json")
+            return HttpResponse(data, content_type="application/json", status=200)
         except TypeError as e:
             return HttpResponse(json.dumps({"error": str(e)}), content_type="application/json", status=400)
         except Exception as e:
@@ -27,7 +27,7 @@ def all_items(request):
                 return HttpResponse(json.dumps({"error": "Item already exists"}), content_type="application/json", status=400)
             result = Item.objects.create(**body_data)
             created_item = serializers.serialize("json", [result])
-            return HttpResponse(created_item, content_type="application/json")
+            return HttpResponse(created_item, content_type="application/json", status=201)
         except json.JSONDecodeError:
             return HttpResponse(json.dumps({"error": "Invalid JSON"}), content_type="application/json", status=400)
         except TypeError as e:
