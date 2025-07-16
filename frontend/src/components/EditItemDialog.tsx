@@ -10,7 +10,7 @@ interface Props {
 export default ({setItems, ref, item}: Props)=>{
     const [error, setError] = useState("");
     const [name, setName] = useState("");
-    const [group, setGroup] = useState("");
+    const [group, setGroup] = useState<"PRIMARY"|"SECONDARY">("PRIMARY");
 
     useEffect(()=>{
         setName(item?.name || "");

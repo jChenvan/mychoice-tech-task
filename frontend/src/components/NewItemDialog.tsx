@@ -32,6 +32,8 @@ export default ({setItems, ref}: Props)=>{
                         ...newItem.fields,
                     }]);
                     setError("");
+                    setName("");
+                    setGroup("PRIMARY");
                     ref.current?.close();
                 } else {
                     setError((await res.json()).error)
