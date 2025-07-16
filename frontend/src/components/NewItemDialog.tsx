@@ -9,8 +9,7 @@ interface Props {
 export default ({setItems, ref}: Props)=>{
     const [error, setError] = useState("");
     const [name, setName] = useState("");
-    const [group, setGroup] = useState<"PRIMARY"|"SECONDARY">("PRIMARY");
-    const [formEnabled, setFormEnabled] = useState(true);
+    const [group, setGroup] = useState("");
 
     return <dialog ref={ref} onClick={e=>{if (e.target === ref.current) ref.current.close()}} className="m-auto rounded-lg">
         <div className="p-4">

@@ -30,25 +30,6 @@ export default () => {
 
         setItems(items);
     })();
-
-    const handleKey = (e:KeyboardEvent)=>{
-        if (e.key === "Enter") {
-            if (newItemDialogRef.current?.open) {
-                const form = newItemDialogRef.current.querySelector("form");
-                form?.requestSubmit();
-            }
-            if (editItemDialogRef.current?.open) {
-                const form = editItemDialogRef.current.querySelector("form");
-                form?.requestSubmit();
-            }
-        }
-    } 
-
-    document.body.addEventListener("keypress", handleKey);
-
-    return ()=>{
-        document.body.removeEventListener("keypress", handleKey);
-    }
     }, []);
 
     return (
