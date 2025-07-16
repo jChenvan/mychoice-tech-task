@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useState } from "react"
 import type { Item } from "../types"
 
 interface Props {
@@ -7,19 +7,20 @@ interface Props {
 }
 
 export default ({setItems, ref}: Props)=>{
-    const formRef = useRef<HTMLFormElement>(null);
     const [error, setError] = useState("");
+    const [name, setName] = useState("");
+    const [group, setGroup] = useState("");
 
     return <dialog ref={ref} onClick={e=>{if (e.target === ref.current) ref.current.close()}} className="m-auto rounded-lg">
         <div className="p-4">
-            <form action="" ref={formRef} onSubmit={async e=>{
+            <form action="" onSubmit={async e=>{
                 e.preventDefault();
-                if (!formRef.current) return;
-                const formData = new FormData(formRef.current);
-                const formObject = Object.fromEntries(formData.entries());
                 const res = await fetch("http://localhost:8000/items/", {
                     method: "POST",
-                    body: JSON.stringify(formObject),
+                    body: JSON.stringify({
+                        name,
+                        group,
+                    }),
                     headers: {
                         "Content-Type": "application/json",
                     }
@@ -41,11 +42,11 @@ export default ({setItems, ref}: Props)=>{
                     </div>}
                 <label>
                     <h1 className="text-xl my-2">Name</h1>
-                    <input type="text" name="name" className="ml-2 p-2 bg-blue-200 rounded-md"/>
+                    <input type="text" name="name" className="ml-2 p-2 bg-blue-200 rounded-md" value={name} onChange={e=>setName(e.target.value)}/>
                 </label>
                 <label>
                     <h1 className="text-xl my-2">Group</h1>
-                    <select name="group" className="ml-2 p-2 bg-blue-200 rounded-md">
+                    <select name="group" className="ml-2 p-2 bg-blue-200 rounded-md" value={group} onChange={e=>setGroup(e.target.value as "PRIMARY"|"SECONDARY")}>
                         <option value="PRIMARY">Primary</option>
                         <option value="SECONDARY">Secondary</option>
                     </select>

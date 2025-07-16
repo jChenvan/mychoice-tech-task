@@ -18,7 +18,7 @@ export default ({setItems, itemid, ref}:Props) => {
                     method: "DELETE"
                     });
                     ref.current?.close();
-                }} className="bg-red-600 p-2 rounded-lg ml-auto block hover:bg-red-400 cursor-pointer text-white">delete item #{itemid} forever?</button>
+                }} className="bg-red-600 p-2 rounded-lg ml-auto block hover:bg-red-400 cursor-pointer text-white">delete item #{itemid} permanently?</button>
             </div>
         </dialog>
     )
