@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import type { Item } from "../types"
 
 interface Props {
@@ -11,15 +11,37 @@ export default ({setItems, ref, item}: Props)=>{
     const [error, setError] = useState("");
     const [name, setName] = useState("");
     const [group, setGroup] = useState<"PRIMARY"|"SECONDARY">("PRIMARY");
+    const buttonRef = useRef<HTMLButtonElement>(null);
+    
+    useEffect(()=>{
+        const handleKey = (e:KeyboardEvent) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                if (ref.current?.open) buttonRef.current?.click();
+            };
+        }
+
+        document.addEventListener("keypress", handleKey);
+
+        return () => document.removeEventListener("keypress", handleKey);
+    }, []);
 
     useEffect(()=>{
         setName(item?.name || "");
         setGroup(item?.group || "PRIMARY");
     }, [item]);
 
-    return <dialog ref={ref} onClick={e=>{if (e.target === ref.current) ref.current.close()}} className="m-auto rounded-lg">
+    return <dialog 
+            ref={ref} 
+            onClick={e=>{if (e.target === ref.current) ref.current.close()}}
+            className="m-auto rounded-lg"
+            onClose={()=>{
+                setName("");
+                setGroup("PRIMARY");
+                setError("");
+                }}>
         {item && <div className="p-4">
-            <form action="">
+            <form action="" onSubmit={e=>e.preventDefault()}>
                 {error && <div className="text-red-800">
                     {error}
                     </div>}
@@ -34,7 +56,7 @@ export default ({setItems, ref, item}: Props)=>{
                         <option value="SECONDARY">Secondary</option>
                     </select>
                 </label>
-                <button type="button" className="font-bold text-white bg-blue-600 p-2 rounded-lg ml-auto block mt-2 hover:opacity-80 cursor-pointer"
+                <button type="button" ref={buttonRef} className="font-bold text-white bg-blue-600 p-2 rounded-lg ml-auto block mt-2 hover:opacity-80 cursor-pointer"
                 onClick={async ()=>{
                     const res = await fetch(`http://localhost:8000/items/${item.id}/`, {
                         method: "PATCH",
@@ -58,7 +80,6 @@ export default ({setItems, ref, item}: Props)=>{
 
                             return res;
                         }));
-                        setError("");
                         ref.current?.close();
                     } else {
                         setError((await res.json()).error)

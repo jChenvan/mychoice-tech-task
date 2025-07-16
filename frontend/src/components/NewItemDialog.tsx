@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import type { Item } from "../types"
 
 interface Props {
@@ -10,10 +10,32 @@ export default ({setItems, ref}: Props)=>{
     const [error, setError] = useState("");
     const [name, setName] = useState("");
     const [group, setGroup] = useState<"PRIMARY"|"SECONDARY">("PRIMARY");
+    const buttonRef = useRef<HTMLButtonElement>(null);
 
-    return <dialog ref={ref} onClick={e=>{if (e.target === ref.current) ref.current.close()}} className="m-auto rounded-lg">
+    useEffect(()=>{
+        const handleKey = (e:KeyboardEvent) => {
+            if (e.key == "Enter") {
+                e.preventDefault();
+                if (ref.current?.open) buttonRef.current?.click();
+            }
+        }
+
+        document.addEventListener("keypress", handleKey);
+
+        return () => document.removeEventListener("keypress", handleKey);
+    }, []);
+
+    return <dialog
+            ref={ref}
+            onClick={e=>{if (e.target === ref.current) ref.current.close()}}
+            className="m-auto rounded-lg"
+            onClose={()=>{
+                setName("");
+                setGroup("PRIMARY");
+                setError("");
+                }}>
         <div className="p-4">
-            <form action="" ref={formRef}>
+            <form action="" onSubmit={e=>e.preventDefault()}>
                 {error && <div className="text-red-800">
                     {error}
                     </div>}
@@ -28,14 +50,14 @@ export default ({setItems, ref}: Props)=>{
                         <option value="SECONDARY">Secondary</option>
                     </select>
                 </label>
-                <button type="button" className="font-bold text-white bg-blue-600 p-2 rounded-lg ml-auto block mt-2 hover:opacity-80 cursor-pointer"
+                <button type="button" ref={buttonRef} className="font-bold text-white bg-blue-600 p-2 rounded-lg ml-auto block mt-2 hover:opacity-80 cursor-pointer"
                 onClick={async ()=>{
-                    if (!formRef.current) return;
-                    const formData = new FormData(formRef.current);
-                    const formObject = Object.fromEntries(formData.entries());
                     const res = await fetch("http://localhost:8000/items/", {
                         method: "POST",
-                        body: JSON.stringify(formObject),
+                        body: JSON.stringify({
+                            name,
+                            group,
+                        }),
                         headers: {
                             "Content-Type": "application/json",
                         }
@@ -46,7 +68,6 @@ export default ({setItems, ref}: Props)=>{
                             id: newItem.pk,
                             ...newItem.fields,
                         }]);
-                        setError("");
                         ref.current?.close();
                     } else {
                         setError((await res.json()).error)
