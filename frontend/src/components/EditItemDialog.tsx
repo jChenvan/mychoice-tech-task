@@ -21,6 +21,10 @@ export default ({setItems, ref, item}: Props)=>{
         {item && <div className="p-4">
             <form action="" onSubmit={async e=>{
                 e.preventDefault();
+                if (name === item.name && group === item.group) {
+                    ref.current?.close();
+                    return;
+                }
                 const res = await fetch(`http://localhost:8000/items/${item.id}/`, {
                     method: "PATCH",
                     body: JSON.stringify({
