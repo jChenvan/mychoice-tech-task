@@ -15,6 +15,7 @@ export default ({setItems, ref}: Props)=>{
         <div className="p-4">
             <form action="" onSubmit={async e=>{
                 e.preventDefault();
+                setError("");
                 const res = await fetch("http://localhost:8000/items/", {
                     method: "POST",
                     body: JSON.stringify({
@@ -31,12 +32,16 @@ export default ({setItems, ref}: Props)=>{
                         id: newItem.pk,
                         ...newItem.fields,
                     }]);
-                    setError("");
                     setName("");
                     setGroup("PRIMARY");
                     ref.current?.close();
                 } else {
-                    setError((await res.json()).error)
+                    const errorMsg = await res.json();
+                    setError([
+                        errorMsg.error,
+                        errorMsg.details ? ": " : "",
+                        errorMsg.details || "",
+                    ].join(""))
                 }
                 }}>
                 {error && <div className="text-red-800">
