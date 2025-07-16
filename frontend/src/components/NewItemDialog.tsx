@@ -10,38 +10,45 @@ export default ({setItems, ref}: Props)=>{
     const [error, setError] = useState("");
     const [name, setName] = useState("");
     const [group, setGroup] = useState<"PRIMARY"|"SECONDARY">("PRIMARY");
+    const [formEnabled, setFormEnabled] = useState(true);
 
     return <dialog ref={ref} onClick={e=>{if (e.target === ref.current) ref.current.close()}} className="m-auto rounded-lg">
         <div className="p-4">
             <form action="" onSubmit={async e=>{
                 e.preventDefault();
-                setError("");
-                const res = await fetch("http://localhost:8000/items/", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        name,
-                        group,
-                    }),
-                    headers: {
-                        "Content-Type": "application/json",
+                if (formEnabled) {
+                    setFormEnabled(false);
+                    setTimeout(() => {
+                        setFormEnabled(true);
+                    }, 500);
+                    setError("");
+                    const res = await fetch("http://localhost:8000/items/", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            name,
+                            group,
+                        }),
+                        headers: {
+                            "Content-Type": "application/json",
+                        }
+                    });
+                    if (res.ok) {
+                        const newItem = (await res.json())[0];
+                        setItems(prev=>[...prev, {
+                            id: newItem.pk,
+                            ...newItem.fields,
+                        }]);
+                        setName("");
+                        setGroup("PRIMARY");
+                        ref.current?.close();
+                    } else {
+                        const errorMsg = await res.json();
+                        setError([
+                            errorMsg.error,
+                            errorMsg.details ? ": " : "",
+                            errorMsg.details || "",
+                        ].join(""))
                     }
-                });
-                if (res.ok) {
-                    const newItem = (await res.json())[0];
-                    setItems(prev=>[...prev, {
-                        id: newItem.pk,
-                        ...newItem.fields,
-                    }]);
-                    setName("");
-                    setGroup("PRIMARY");
-                    ref.current?.close();
-                } else {
-                    const errorMsg = await res.json();
-                    setError([
-                        errorMsg.error,
-                        errorMsg.details ? ": " : "",
-                        errorMsg.details || "",
-                    ].join(""))
                 }
                 }}>
                 {error && <div className="text-red-800">
