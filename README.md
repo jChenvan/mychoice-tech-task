@@ -13,6 +13,8 @@
     ```sh
     cd backend
     ```
+> **Reminder:** Make sure Docker Desktop is running before executing the following command.
+
 2. Start the backend using Docker:
     ```sh
     docker compose up --build
