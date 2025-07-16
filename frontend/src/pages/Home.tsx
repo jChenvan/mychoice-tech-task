@@ -4,7 +4,6 @@ import { mdiPlus, mdiEye, mdiPen, mdiClose } from "@mdi/js";
 import Icon from "@mdi/react";
 import EditItemDialog from "../components/EditItemDialog";
 import NewItemDialog from "../components/NewItemDialog";
-import ViewItemDialog from "../components/ViewItemDialog";
 import { useNavigate } from "react-router-dom";
 
 export default () => {
