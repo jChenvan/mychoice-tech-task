@@ -5,12 +5,14 @@ import Icon from "@mdi/react";
 import EditItemDialog from "../components/EditItemDialog";
 import NewItemDialog from "../components/NewItemDialog";
 import { useNavigate } from "react-router-dom";
+import DeleteItemDialog from "../components/DeleteItemDialog";
 
 export default () => {
     const [items, setItems] = useState<Item[]>([]);
     const [current, setCurrent] = useState<Item>();
     const newItemDialogRef = useRef<HTMLDialogElement>(null);
     const editItemDialogRef = useRef<HTMLDialogElement>(null);
+    const deleteItemDialogRef = useRef<HTMLDialogElement>(null);
     const nav = useNavigate();
 
     useEffect(()=>{
@@ -34,6 +36,7 @@ export default () => {
     <>
         <NewItemDialog setItems={setItems} ref={newItemDialogRef}/>
         <EditItemDialog item={current} ref={editItemDialogRef} setItems={setItems}/>
+        <DeleteItemDialog itemid={current?.id} ref={deleteItemDialogRef} setItems={setItems}/>
         <div className='w-screen h-screen flex justify-center items-center'>
         <table className='rounded-lg overflow-hidden shadow-md'>
             <thead className='bg-blue-700'>
@@ -68,10 +71,8 @@ export default () => {
                     <Icon path={mdiPen} size={1} color={"blue"}/>
                 </button>
                 <button className='p-2 hover:opacity-50 cursor-pointer' onClick={()=>{
-                    setItems(prev=>prev.filter(i=>i.id !== item.id));
-                    fetch(`http://localhost:8000/items/${item.id}/`, {
-                    method: "DELETE"
-                    });
+                    setCurrent(item);
+                    deleteItemDialogRef.current?.showModal();
                 }}>
                     <Icon path={mdiClose} size={1} color={"blue"}/>
                 </button>
