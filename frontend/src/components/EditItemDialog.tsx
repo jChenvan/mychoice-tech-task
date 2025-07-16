@@ -19,7 +19,36 @@ export default ({setItems, ref, item}: Props)=>{
 
     return <dialog ref={ref} onClick={e=>{if (e.target === ref.current) ref.current.close()}} className="m-auto rounded-lg">
         {item && <div className="p-4">
-            <form action="">
+            <form action="" onSubmit={async e=>{
+                e.preventDefault();
+                const res = await fetch(`http://localhost:8000/items/${item.id}/`, {
+                    method: "PATCH",
+                    body: JSON.stringify({
+                        name,
+                        group,
+                    }),
+                    headers: {
+                        "Content-Type": "application/json",
+                    }
+                });
+                if (res.ok) {
+                    const newItem = (await res.json())[0];
+                    setItems(prev=>prev.map(i=>{
+                        let res:Item;
+                        if (i.id === item.id) res = {
+                            id: newItem.pk,
+                            ...newItem.fields
+                        };
+                        else res = i;
+
+                        return res;
+                    }));
+                    setError("");
+                    ref.current?.close();
+                } else {
+                    setError((await res.json()).error)
+                }
+                }}>
                 {error && <div className="text-red-800">
                     {error}
                     </div>}
@@ -34,36 +63,7 @@ export default ({setItems, ref, item}: Props)=>{
                         <option value="SECONDARY">Secondary</option>
                     </select>
                 </label>
-                <button type="button" className="font-bold text-white bg-blue-600 p-2 rounded-lg ml-auto block mt-2 hover:opacity-80 cursor-pointer"
-                onClick={async ()=>{
-                    const res = await fetch(`http://localhost:8000/items/${item.id}/`, {
-                        method: "PATCH",
-                        body: JSON.stringify({
-                            name,
-                            group,
-                        }),
-                        headers: {
-                            "Content-Type": "application/json",
-                        }
-                    });
-                    if (res.ok) {
-                        const newItem = (await res.json())[0];
-                        setItems(prev=>prev.map(i=>{
-                            let res:Item;
-                            if (i.id === item.id) res = {
-                                id: newItem.pk,
-                                ...newItem.fields
-                            };
-                            else res = i;
-
-                            return res;
-                        }));
-                        setError("");
-                        ref.current?.close();
-                    } else {
-                        setError((await res.json()).error)
-                    }
-                    }}>
+                <button type="submit" className="font-bold text-white bg-blue-600 p-2 rounded-lg ml-auto block mt-2 hover:opacity-80 cursor-pointer">
                     update
                 </button>
             </form>
