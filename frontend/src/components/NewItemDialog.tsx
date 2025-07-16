@@ -12,7 +12,30 @@ export default ({setItems, ref}: Props)=>{
 
     return <dialog ref={ref} onClick={e=>{if (e.target === ref.current) ref.current.close()}} className="m-auto rounded-lg">
         <div className="p-4">
-            <form action="" ref={formRef}>
+            <form action="" ref={formRef} onSubmit={async e=>{
+                e.preventDefault();
+                if (!formRef.current) return;
+                const formData = new FormData(formRef.current);
+                const formObject = Object.fromEntries(formData.entries());
+                const res = await fetch("http://localhost:8000/items/", {
+                    method: "POST",
+                    body: JSON.stringify(formObject),
+                    headers: {
+                        "Content-Type": "application/json",
+                    }
+                });
+                if (res.ok) {
+                    const newItem = (await res.json())[0];
+                    setItems(prev=>[...prev, {
+                        id: newItem.pk,
+                        ...newItem.fields,
+                    }]);
+                    setError("");
+                    ref.current?.close();
+                } else {
+                    setError((await res.json()).error)
+                }
+                }}>
                 {error && <div className="text-red-800">
                     {error}
                     </div>}
@@ -27,30 +50,7 @@ export default ({setItems, ref}: Props)=>{
                         <option value="SECONDARY">Secondary</option>
                     </select>
                 </label>
-                <button type="button" className="font-bold text-white bg-blue-600 p-2 rounded-lg ml-auto block mt-2 hover:opacity-80 cursor-pointer"
-                onClick={async ()=>{
-                    if (!formRef.current) return;
-                    const formData = new FormData(formRef.current);
-                    const formObject = Object.fromEntries(formData.entries());
-                    const res = await fetch("http://localhost:8000/items/", {
-                        method: "POST",
-                        body: JSON.stringify(formObject),
-                        headers: {
-                            "Content-Type": "application/json",
-                        }
-                    });
-                    if (res.ok) {
-                        const newItem = (await res.json())[0];
-                        setItems(prev=>[...prev, {
-                            id: newItem.pk,
-                            ...newItem.fields,
-                        }]);
-                        setError("");
-                        ref.current?.close();
-                    } else {
-                        setError((await res.json()).error)
-                    }
-                    }}>
+                <button type="submit" className="font-bold text-white bg-blue-600 p-2 rounded-lg ml-auto block mt-2 hover:opacity-80 cursor-pointer">
                     create
                 </button>
             </form>
