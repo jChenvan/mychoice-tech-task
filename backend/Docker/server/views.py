@@ -40,6 +40,8 @@ def item(request, itemid):
     if request.method == "GET":
         try:
             result = Item.objects.filter(id=itemid)
+            if len(result) == 0:
+                return HttpResponse(json.dumps({"error": "Item not found"}), content_type="application/json", status=404)
             item = serializers.serialize("json", result)
             return HttpResponse(item, content_type="application/json")
         except Item.DoesNotExist:
